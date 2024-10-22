@@ -1,0 +1,90 @@
+[2024-10-10 17:12:01] Szkript indítása
+[2024-10-10 17:12:01] POST kérés érkezett
+[2024-10-10 17:12:01] Beérkezett adatok: {"student_id":"3","email":"steffler.mate@gmail.com","check_in":"1","phone_number":"+3630 935 4043","megjegyzes":"SDAfASD"}
+[2024-10-10 17:12:01] Beszúrandó rekord: {"student_id":3,"email":"steffler.mate@gmail.com","check_in":1,"phone_number":"+3630 935 4043","megjegyzes":"SDAfASD"}
+[2024-10-10 17:12:01] Kivétel a beszúrás során: A(z) "mdl_diak_check" táblázat nem létezik
+[2024-10-10 17:13:46] Szkript indítása
+[2024-10-10 17:13:46] Hiba: A 'mdl_diak_check' tábla nem létezik
+[2024-10-22 17:36:40] Szkript indítása
+[2024-10-22 17:36:40] Hiba: A 'mdl_diak_check' tábla nem létezik
+[2024-10-22 17:39:18] Szkript indítása
+[2024-10-22 17:39:18] Szkript befejezése
+[2024-10-22 17:39:26] Szkript indítása
+[2024-10-22 17:39:26] POST kérés érkezett
+[2024-10-22 17:39:26] Beérkezett adatok: {"student_id":"2","email":"steffler.mate@gmail.com","check_in":"1","phone_number":"012301231023","megjegyzes":"asdf"}
+[2024-10-22 17:39:26] Beszúrandó rekord: {"student_id":2,"email":"steffler.mate@gmail.com","check_in":1,"phone_number":"012301231023","megjegyzes":"asdf"}
+[2024-10-22 17:39:26] Kivétel a beszúrás során: Hiba az adatbázis írása közben.
+[2024-10-22 17:39:26] Szkript befejezése
+[2024-10-22 17:39:47] Szkript indítása
+[2024-10-22 17:39:47] POST kérés érkezett
+[2024-10-22 17:39:47] Beérkezett adatok: {"student_id":"2","email":"asd@asd","phone_number":"32","megjegyzes":"sa"}
+[2024-10-22 17:39:47] Beszúrandó rekord: {"student_id":2,"email":"asd@asd","check_in":0,"phone_number":"32","megjegyzes":"sa"}
+[2024-10-22 17:39:47] Kivétel a beszúrás során: Hiba az adatbázis írása közben.
+[2024-10-22 17:39:47] Szkript befejezése
+[2024-10-22 17:45:12] Szkript indítása
+[2024-10-22 17:45:12] POST kérés érkezett
+[2024-10-22 17:45:13] Szkript befejezése
+[2024-10-22 17:45:20] Szkript indítása
+[2024-10-22 17:45:20] POST kérés érkezett
+[2024-10-22 17:45:20] Beérkezett adatok: {"student_id":"10","email":"steffler.mate@gmail.com","check_in":"1","phone_number":"+3630 935 4043","megjegyzes":"sdfsdf"}
+[2024-10-22 17:45:20] Sikeres beszúrás, ID: 1
+[2024-10-22 17:45:20] Szkript befejezése
+[2024-10-22 17:45:41] Szkript indítása
+[2024-10-22 17:45:41] POST kérés érkezett
+[2024-10-22 17:45:41] Beérkezett adatok: {"student_id":"7","email":"pilibudi@gmail.com","check_in":"1","phone_number":"+3630 935 4043","megjegyzes":"sdfgsdf"}
+[2024-10-22 17:45:41] Sikeres beszúrás, ID: 2
+[2024-10-22 17:45:41] Szkript befejezése
+[2024-10-22 17:46:43] Szkript indítása
+[2024-10-22 17:46:43] POST kérés érkezett
+[2024-10-22 17:46:43] Beérkezett adatok: {"student_id":"7","email":"pilibudi@gmail.com","check_in":"1","phone_number":"+3630 935 4043","megjegyzes":"sdfgsdf"}
+[2024-10-22 17:46:43] Sikeres beszúrás, ID: 3
+[2024-10-22 17:46:43] Szkript befejezése
+[2024-10-22 17:46:49] Szkript indítása
+[2024-10-22 17:46:49] POST kérés érkezett
+[2024-10-22 17:46:49] Beérkezett adatok: {"student_id":"7","email":"pilibudi@gmail.com","check_in":"1","phone_number":"+3630 935 4043","megjegyzes":"sdfgsdf"}
+[2024-10-22 17:46:49] Sikeres beszúrás, ID: 4
+[2024-10-22 17:46:49] Szkript befejezése
+[2024-10-22 17:49:35] Szkript indítása
+[2024-10-22 17:49:35] Szkript befejezése
+[2024-10-22 17:49:58] Szkript indítása
+[2024-10-22 17:49:58] POST kérés érkezett
+[2024-10-22 17:49:58] Sikeres művelet: frissítve
+[2024-10-22 17:49:58] Szkript befejezése
+[2024-10-22 17:50:01] Szkript indítása
+[2024-10-22 17:50:01] POST kérés érkezett
+[2024-10-22 17:50:01] Sikeres művelet: frissítve
+[2024-10-22 17:50:01] Szkript befejezése
+[2024-10-22 17:50:15] Szkript indítása
+[2024-10-22 17:50:15] POST kérés érkezett
+[2024-10-22 17:50:15] Sikeres művelet: frissítve
+[2024-10-22 17:50:15] Szkript befejezése
+[2024-10-22 17:50:48] Szkript indítása
+[2024-10-22 17:50:48] POST kérés érkezett
+[2024-10-22 17:50:48] Sikeres művelet: mentve
+[2024-10-22 17:50:48] Szkript befejezése
+[2024-10-22 17:51:08] Szkript indítása
+[2024-10-22 17:51:08] POST kérés érkezett
+[2024-10-22 17:51:08] Sikeres művelet: frissítve
+[2024-10-22 17:51:08] Szkript befejezése
+[2024-10-22 17:51:18] Szkript indítása
+[2024-10-22 17:51:18] POST kérés érkezett
+[2024-10-22 17:51:18] Sikeres művelet: mentve
+[2024-10-22 17:51:18] Szkript befejezése
+[2024-10-22 17:51:25] Szkript indítása
+[2024-10-22 17:51:25] POST kérés érkezett
+[2024-10-22 17:51:25] Sikeres művelet: frissítve
+[2024-10-22 17:51:25] Szkript befejezése
+[2024-10-22 17:51:27] Szkript indítása
+[2024-10-22 17:51:27] POST kérés érkezett
+[2024-10-22 17:51:27] Sikeres művelet: frissítve
+[2024-10-22 17:51:27] Szkript befejezése
+[2024-10-22 17:51:30] Szkript indítása
+[2024-10-22 17:51:30] POST kérés érkezett
+[2024-10-22 17:51:30] Sikeres művelet: frissítve
+[2024-10-22 17:51:30] Szkript befejezése
+[2024-10-22 17:53:41] Szkript indítása
+[2024-10-22 17:53:41] Szkript befejezése
+[2024-10-22 17:53:47] Szkript indítása
+[2024-10-22 17:53:47] POST kérés érkezett
+[2024-10-22 17:53:47] Sikeres művelet: frissítve
+[2024-10-22 17:53:47] Szkript befejezése
