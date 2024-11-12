@@ -19,6 +19,18 @@ $course_ids = [
     'Phd' => 9   // 9-es ID a Phd kurzushoz
 ];
 
+// Csoport hozzárendelések definiálása
+$group_mappings = [
+    '1' => ['course_id' => 7, 'group_id' => 6],  // Mérnőkinfo BSc
+    '2' => ['course_id' => 7, 'group_id' => 7],  // Villamosmérnök BSc
+    '3' => ['course_id' => 8, 'group_id' => 8],  // Mérnökinfo MSc
+    '4' => ['course_id' => 8, 'group_id' => 9],  // Gazdinfo MSc
+    '5' => ['course_id' => 8, 'group_id' => 10], // Űrmérnök MSc
+    '6' => ['course_id' => 9, 'group_id' => 12], // Mérnökinfo PhD
+    '7' => ['course_id' => 9, 'group_id' => 13], // Villamosmérnök PhD
+    '8' => ['course_id' => 9, 'group_id' => 14]  // Gazdinfo PhD
+];
+
 // Csak a diákok lekérdezése
 $students = $DB->get_records_sql("
     SELECT DISTINCT u.id, u.firstname, u.lastname 
@@ -36,23 +48,37 @@ $students = $DB->get_records_sql("
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $message = '';
     
-    // Függvény a beiratkozás kezelésére
+    // Függvény a beiratkozás és csoportba sorolás kezelésére
     function handle_enrollment($student_id, $response) {
-        global $DB, $course_ids;
+        global $DB, $course_ids, $group_mappings;
         
         if (empty($response) || $response === 'Nincs válasz') {
             return "Nincs mentés, mert nincs válasz!";
         }
         
-        // Az első három karakter kinyerése
+        // Az első három karakter kinyerése a program típushoz
         $program = substr(trim($response), 0, 3);
+        
+        // Az 5. karakter kinyerése a csoporthoz
+        $group_number = substr(trim($response), 4, 1);
         
         // Ellenőrizzük, hogy érvényes program-e
         if (!array_key_exists($program, $course_ids)) {
             return "Érvénytelen válasz formátum! A válasznak 'Bsc', 'Msc' vagy 'Phd'-vel kell kezdődnie.";
         }
         
+        // Ellenőrizzük, hogy érvényes csoport szám-e
+        if (!array_key_exists($group_number, $group_mappings)) {
+            return "Érvénytelen csoport szám!";
+        }
+        
         $course_id = $course_ids[$program];
+        $group_info = $group_mappings[$group_number];
+        
+        // Ellenőrizzük, hogy a kurzus és csoport egyezik-e
+        if ($course_id !== $group_info['course_id']) {
+            return "A választott csoport nem tartozik a megjelölt képzési szinthez!";
+        }
         
         // Ellenőrizzük, hogy már be van-e iratkozva az adott kurzusra
         $is_enrolled = $DB->record_exists_sql("
@@ -63,35 +89,63 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             AND e.courseid = ?
         ", array($student_id, $course_id));
         
-        if ($is_enrolled) {
-            return "A hallgató már be van iratkozva a $program kurzusra!";
+        if (!$is_enrolled) {
+            // Beiratkoztatás a kurzusra
+            $enrol = enrol_get_plugin('manual');
+            $instance = $DB->get_record('enrol', ['courseid' => $course_id, 'enrol' => 'manual']);
+            if ($instance) {
+                $enrol->enrol_user($instance, $student_id, 5); // 5 = student role
+            } else {
+                return "Hiba: A kurzusra történő beiratkoztatás sikertelen!";
+            }
         }
         
-        // Beiratkoztatás
-        $enrol = enrol_get_plugin('manual');
-        $instance = $DB->get_record('enrol', ['courseid' => $course_id, 'enrol' => 'manual']);
-        if ($instance) {
-            $enrol->enrol_user($instance, $student_id, 5); // 5 = student role
-            return "Sikeres beiratkoztatás a $program kurzusra!";
+        // Csoportba sorolás
+        try {
+            // Ellenőrizzük, hogy már tagja-e a csoportnak
+            $is_group_member = $DB->record_exists('groups_members', [
+                'groupid' => $group_info['group_id'],
+                'userid' => $student_id
+            ]);
+            
+            if (!$is_group_member) {
+                // Hozzáadjuk a csoporthoz
+                $group_member = new stdClass();
+                $group_member->groupid = $group_info['group_id'];
+                $group_member->userid = $student_id;
+                $group_member->timeadded = time();
+                
+                $DB->insert_record('groups_members', $group_member);
+                return "Sikeres beiratkoztatás és csoportba sorolás!";
+            } else {
+                return "A hallgató már tagja a kiválasztott csoportnak!";
+            }
+        } catch (Exception $e) {
+            return "Hiba: A csoportba sorolás sikertelen! " . $e->getMessage();
         }
-        
-        return "Hiba: A beiratkoztatás sikertelen!";
     }
     
     if (isset($_POST['save_all'])) {
-        // Összes mentése
-        foreach ($students as $student) {
-            $response = $DB->get_field_sql("
-                SELECT qas.responsesummary
-                FROM {quiz_attempts} qa
-                JOIN {question_attempts} qas ON qas.questionusageid = qa.uniqueid
-                WHERE qa.quiz = ? AND qa.userid = ? AND qa.state = 'finished'
-                ORDER BY qa.attempt DESC
-                LIMIT 1
-            ", array($enrollment_quiz->id, $student->id));
-            
-            $message .= htmlspecialchars($student->lastname . ' ' . $student->firstname) . ': ' 
-                     . handle_enrollment($student->id, $response) . "<br>";
+        // Kijelölt hallgatók mentése
+        if (isset($_POST['selected_students'])) {
+            foreach ($_POST['selected_students'] as $student_id) {
+                if (isset($students[$student_id])) {
+                    $response = $DB->get_field_sql("
+                        SELECT qas.responsesummary
+                        FROM {quiz_attempts} qa
+                        JOIN {question_attempts} qas ON qas.questionusageid = qa.uniqueid
+                        WHERE qa.quiz = ? AND qa.userid = ? AND qa.state = 'finished'
+                        ORDER BY qa.attempt DESC
+                        LIMIT 1
+                    ", array($enrollment_quiz->id, $student_id));
+                    
+                    $student = $students[$student_id];
+                    $message .= htmlspecialchars($student->lastname . ' ' . $student->firstname) . ': ' 
+                             . handle_enrollment($student_id, $response) . "<br>";
+                }
+            }
+        } else {
+            $message = "Kérem válasszon ki legalább egy hallgatót!";
         }
     } elseif (isset($_POST['save_single'])) {
         // Egyedi mentés
@@ -145,6 +199,13 @@ echo "<!DOCTYPE html>
             border: 1px solid #ddd;
             border-radius: 4px;
         }
+        .select-all-container {
+            margin: 10px 0;
+        }
+        .single-save-btn {
+            padding: 5px 10px;
+            margin-left: 10px;
+        }
     </style>
 </head>
 <body>
@@ -157,8 +218,15 @@ if (!empty($message)) {
 
 echo "<h1>Beiratkozás ellenőrzés</h1>
         <form id='mainForm' method='post'>
+            <div class='select-all-container'>
+                <label>
+                    <input type='checkbox' id='selectAll' onclick='toggleAll(this);'> 
+                    Összes kijelölése
+                </label>
+            </div>
             <table>
                 <tr>
+                    <th>Kijelölés</th>
                     <th>Név</th>
                     <th>Beiratkozott</th>
                     <th>Beiratkozási teszt válasza</th>
@@ -189,7 +257,6 @@ foreach ($students as $student) {
         $program = substr(trim($test_response), 0, 3);
         if (array_key_exists($program, $course_ids)) {
             $course_id = $course_ids[$program];
-            // Javított lekérdezés a beiratkozás ellenőrzéséhez
             $is_enrolled = $DB->record_exists_sql("
                 SELECT 1 
                 FROM {user_enrolments} ue
@@ -205,15 +272,16 @@ foreach ($students as $student) {
     
     echo "<tr>
         <td>
-            <input type='hidden' name='student_ids[]' value='" . $student->id . "'>
-            " . htmlspecialchars($student->lastname . ' ' . $student->firstname) . "
+            <input type='checkbox' name='selected_students[]' value='" . $student->id . "' class='student-checkbox'>
         </td>
+        <td>" . htmlspecialchars($student->lastname . ' ' . $student->firstname) . "</td>
         <td class='status-icon $status_class'>" . $status_icon . "</td>
         <td>" . htmlspecialchars($test_response) . "</td>
         <td>
             <input type='submit' 
                    name='save_single[" . $student->id . "]' 
                    value='Mentés' 
+                   class='single-save-btn'
                    onclick='return confirmSave(\"" . htmlspecialchars($student->lastname . ' ' . $student->firstname) . "\");'>
         </td>
     </tr>";
@@ -223,9 +291,9 @@ echo "</table>
             <div class='save-all-container'>
                 <input type='submit' 
                        name='save_all' 
-                       value='Összes mentése' 
+                       value='Kijelöltek mentése' 
                        class='save-all-btn'
-                       onclick='return confirmSaveAll();'>
+                       onclick='return confirmSaveSelected();'>
             </div>
         </form>
     </div>
@@ -235,8 +303,24 @@ echo "</table>
         return confirm('Biztosan menti ' + studentName + ' adatait?');
     }
 
-    function confirmSaveAll() {
-        return confirm('Biztosan menti az összes diák adatait?');
+    function confirmSaveSelected() {
+        var checkedBoxes = document.querySelectorAll('input[name=\"selected_students[]\"]');
+        var checkedCount = 0;
+        for (var i = 0; i < checkedBoxes.length; i++) {
+            if (checkedBoxes[i].checked) checkedCount++;
+        }
+        if (checkedCount === 0) {
+            alert('Kérem válasszon ki legalább egy hallgatót!');
+            return false;
+        }
+        return confirm('Biztosan menti a kijelölt ' + checkedCount + ' hallgató adatait?');
+    }
+
+    function toggleAll(source) {
+        var checkboxes = document.getElementsByClassName('student-checkbox');
+        for (var i = 0; i < checkboxes.length; i++) {
+            checkboxes[i].checked = source.checked;
+        }
     }
     </script>
 </body>
